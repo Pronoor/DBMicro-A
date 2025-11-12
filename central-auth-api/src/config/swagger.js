@@ -1,7 +1,22 @@
-// ================================================================
-// FILE: src/config/swagger.js - UPDATED WITH BETTER ORGANIZATION
-// ================================================================
 const swaggerJsdoc = require('swagger-jsdoc');
+
+// Helper function to get server URL
+const getServerUrl = () => {
+  // Priority 1: Environment variable (explicit)
+  if (process.env.API_BASE_URL) {
+    return `${process.env.API_BASE_URL}/api/v1`;
+  }
+  
+  // Priority 2: Check environment
+  if (process.env.NODE_ENV === 'production') {
+    // Production - you should set API_BASE_URL
+    return 'https://yourdomain.com/api/v1';
+  }
+  
+  // Priority 3: Development/Local
+  const port = process.env.PORT || 3000;
+  return `http://localhost:${port}/api/v1`;
+};
 
 const options = {
   definition: {
@@ -21,12 +36,10 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000/api/v1',
-        description: 'Development server'
-      },
-      {
-        url: 'https://api.production.com/api/v1',
-        description: 'Production server'
+        url: getServerUrl(),
+        description: process.env.NODE_ENV === 'production' 
+          ? 'Production Server' 
+          : 'Development Server'
       }
     ],
     tags: [
@@ -37,6 +50,10 @@ const options = {
       {
         name: 'Authentication',
         description: 'User authentication endpoints (register, login, logout)'
+      },
+      {
+        name: 'Password Management',
+        description: 'Password reset and change operations'
       },
       {
         name: 'Users',
